@@ -20,7 +20,7 @@ TOOL_DEF = {
     }
 }
 
-def run(ticker: str, multiplier: int, from_date: str, to_date: str, time_interval: str = "day", limit: int = 50):
+def run(ticker: str, from_date: str, to_date: str, multiplier: int = 1, time_interval: str = "day", limit: int = 50):
     client = RESTClient(api_key=os.environ["MASSIVE_API_KEY"])
     return client.get_aggs(
         ticker=ticker,
