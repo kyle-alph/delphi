@@ -1,9 +1,5 @@
 # Delphi — Decision Log
 
-Decisions made during planning. Transfer these to your repo's DECISIONS.md and continue adding as you build.
-
----
-
 ## Architecture: ReAct Loop with Native Tool Use
 
 **Decision:** ReAct loop using Anthropic's native tool-use API.
