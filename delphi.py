@@ -1,13 +1,18 @@
 import sys, json
 import anthropic
 import market_data_tool
+import options_data_tool
 
 client = anthropic.Anthropic()
 
-TOOLS = [market_data_tool.TOOL_DEF]
+TOOLS = [
+    market_data_tool.TOOL_DEF,
+    options_data_tool.TOOL_DEF
+]
 
 TOOL_RUNNERS = {
     "get_stock_prices": market_data_tool.run,
+    "get_option_data": options_data_tool.run
 }
 
 response = client.messages.create(
@@ -24,6 +29,11 @@ response = client.messages.create(
 )
 
 print(f"stop_reason: {response.stop_reason}")
+
+if response.stop_reason == "end_turn":
+    final_text = next(block for block in response.content if block.type == "text")
+    print(final_text.text)
+    sys.exit(0)
 
 tool_use = next(a for a in response.content if a.type == "tool_use")
 print(f"Tool: {tool_use.name}")
@@ -59,4 +69,4 @@ followup = client.messages.create(
 )
 
 final_text = next(block for block in followup.content if block.type == "text")
-print(final_text.text)
+print(final_text)

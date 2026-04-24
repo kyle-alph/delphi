@@ -3,7 +3,7 @@ from massive import RESTClient
 
 TOOL_DEF = {
     "name": "get_stock_prices",
-    "description": "Retireves historical OHLCV price data for a stock ticker given a date range.",
+    "description": "Retrieves historical OHLCV price data for a stock ticker given a date range.",
     "input_schema": {
         "type": "object",
         "properties": {

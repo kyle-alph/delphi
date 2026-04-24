@@ -97,3 +97,31 @@
 **Trade-offs:** Missing the "killer feature" that would make the product most differentiated. But shipping a solid P0 and iterating is better than delaying launch for a complex feature.
 
 **At scale:** Would build a sector/industry graph (GICS classification), parse earnings for segment-level revenue, and map segment exposure across companies. Could use Claude to identify sympathy relationships dynamically.
+
+---
+
+## Use Instruction in the Description of a Tool Schema
+
+**Decision:** Add it
+
+**Alternatives:** Not adding it
+
+**Why:** Help Claude disambiguate better between market data vs options data, etc
+
+**Trade-offs:** Not much
+
+**At scale:** Helps as is
+
+---
+
+## Title
+
+**Decision:** 
+
+**Alternatives:**
+
+**Why:**
+
+**Trade-offs:**
+
+**At scale:**
