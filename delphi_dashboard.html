@@ -183,6 +183,53 @@
     }
 
     .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* ── WATCHLIST STRIP ────────────────────────────────── */
+    .watchlist-strip {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .watchlist-strip::-webkit-scrollbar        { height: 2px; }
+    .watchlist-strip::-webkit-scrollbar-track  { background: transparent; }
+    .watchlist-strip::-webkit-scrollbar-thumb  { background: var(--border2); border-radius: 1px; }
+
+    .ticker-pill {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      min-width: 80px;
+    }
+
+    .ticker-pill:hover  { border-color: var(--border2); }
+    .ticker-pill.active { border-color: var(--accent); background: rgba(123,110,246,0.08); }
+
+    .ticker-pill .sym {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .ticker-pill .chg {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .up   { color: var(--green); }
+    .down { color: var(--red); }
+    .flat { color: var(--muted); }
   </style>
 </head>
 <body>
@@ -208,7 +255,15 @@
 
   <!-- LEFT: MAIN PANEL -->
   <div class="main" id="main-panel">
-    <!-- sections rendered here -->
+
+    <!-- WATCHLIST STRIP -->
+    <div id="section-dashboard">
+      <div class="section-header">
+        <span class="section-title">watchlist</span>
+      </div>
+      <div class="watchlist-strip" id="watchlist-strip"></div>
+    </div>
+
   </div>
 
   <!-- RIGHT: CHAT SIDEBAR -->
@@ -324,6 +379,24 @@ const CONFIG = {
   laggerThreshold: 0.5,
   lagWindows: [20, 60],
 };
+
+// ── WATCHLIST STRIP ───────────────────────────────────────
+function renderWatchlistStrip() {
+  const strip = document.getElementById('watchlist-strip');
+  strip.innerHTML = CONFIG.watchlist.map(ticker => `
+    <div class="ticker-pill" id="pill-${ticker}" onclick="onPillClick('${ticker}')">
+      <span class="sym">${ticker}</span>
+      <span class="chg" id="pill-chg-${ticker}">—</span>
+    </div>
+  `).join('');
+}
+
+function onPillClick(ticker) {
+  document.querySelectorAll('.ticker-pill').forEach(p => p.classList.remove('active'));
+  document.getElementById('pill-' + ticker).classList.add('active');
+}
+
+renderWatchlistStrip();
 </script>
 
 </body>
