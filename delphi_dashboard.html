@@ -184,6 +184,28 @@
 
     .divider { height: 1px; background: var(--border); margin: 20px 0; }
 
+    /* ── LOADING BAR + WARN BANNER ─────────────────────── */
+    #loading-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      width: 0%;
+      background: var(--accent);
+      z-index: 200;
+      transition: width 0.25s ease, opacity 0.4s ease;
+    }
+
+    #warn-banner {
+      display: none;
+      padding: 6px 24px;
+      background: rgba(245,158,11,0.1);
+      border-bottom: 1px solid rgba(245,158,11,0.25);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--amber);
+      flex-shrink: 0;
+    }
+
     /* ── WATCHLIST STRIP ────────────────────────────────── */
     .watchlist-strip {
       display: flex;
@@ -234,6 +256,8 @@
 </head>
 <body>
 
+<div id="loading-bar"></div>
+
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="logo">DELPHI <span>/ pre-market</span></div>
@@ -249,6 +273,8 @@
     </div>
   </div>
 </div>
+
+<div id="warn-banner">⚠ Fewer than 10 tickers loaded — data may be incomplete. Check console for details.</div>
 
 <!-- TWO-COLUMN LAYOUT -->
 <div class="layout">
@@ -380,6 +406,79 @@ const CONFIG = {
   lagWindows: [20, 60],
 };
 
+// ── DATE HELPERS ─────────────────────────────────────────
+function toDateStr(d) { return d.toISOString().split('T')[0]; }
+
+function getDateRange() {
+  const to   = new Date();
+  const from = new Date();
+  from.setDate(from.getDate() - 90);
+  return { from: toDateStr(from), to: toDateStr(to) };
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── DATA STORE ───────────────────────────────────────────
+const dataMap = {};
+
+// ── FETCH ────────────────────────────────────────────────
+async function fetchTicker(ticker) {
+  const { from, to } = getDateRange();
+  const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${from}/${to}?adjusted=true&sort=asc&limit=120&apiKey=${POLYGON_API_KEY}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (!json.results || json.results.length < 2) throw new Error('insufficient data');
+    const closes   = json.results.map(r => r.c);
+    const dates    = json.results.map(r => toDateStr(new Date(r.t)));
+    const last     = json.results[json.results.length - 1];
+    const todayPct = ((last.c - last.o) / last.o) * 100;
+    return { closes, dates, todayPct, raw: json.results };
+  } catch (e) {
+    console.warn(`[${ticker}] fetch failed:`, e.message);
+    return null;
+  }
+}
+
+// ── LOADING BAR ──────────────────────────────────────────
+function setLoadingProgress(pct) {
+  document.getElementById('loading-bar').style.width = pct + '%';
+}
+
+// ── PILL UPDATER ─────────────────────────────────────────
+function updatePillChange(ticker, data) {
+  const el = document.getElementById('pill-chg-' + ticker);
+  if (!el) return;
+  if (!data) { el.textContent = 'err'; return; }
+  const sign = data.todayPct >= 0 ? '+' : '';
+  el.textContent = `${sign}${data.todayPct.toFixed(2)}%`;
+  el.className   = 'chg ' + (data.todayPct > 0.05 ? 'up' : data.todayPct < -0.05 ? 'down' : 'flat');
+}
+
+// ── LOAD WATCHLIST ───────────────────────────────────────
+async function loadWatchlist() {
+  const tickers = CONFIG.watchlist;
+  let loaded = 0;
+  setLoadingProgress(0);
+
+  for (let i = 0; i < tickers.length; i++) {
+    const ticker = tickers[i];
+    const data   = await fetchTicker(ticker);
+    if (data) { dataMap[ticker] = data; loaded++; }
+    updatePillChange(ticker, data);
+    setLoadingProgress(((i + 1) / tickers.length) * 100);
+    if (i < tickers.length - 1) await delay(200);
+  }
+
+  const bar = document.getElementById('loading-bar');
+  bar.style.opacity = '0';
+
+  if (loaded < Math.min(10, tickers.length)) {
+    document.getElementById('warn-banner').style.display = 'block';
+  }
+}
+
 // ── WATCHLIST STRIP ───────────────────────────────────────
 function renderWatchlistStrip() {
   const strip = document.getElementById('watchlist-strip');
@@ -397,6 +496,7 @@ function onPillClick(ticker) {
 }
 
 renderWatchlistStrip();
+loadWatchlist();
 </script>
 
 </body>
