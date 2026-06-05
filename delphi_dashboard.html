@@ -225,6 +225,51 @@
 <script>
 const POLYGON_API_KEY = '2GXApNh5crjJPq7WGxM2XpMiRAp0uNzj';
 
+// ── MARKET CLOCK ─────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+
+  const timeStr = now.toLocaleTimeString('en-US', {
+    timeZone: 'America/New_York',
+    hour:     '2-digit',
+    minute:   '2-digit',
+    second:   '2-digit',
+    hour12:   true,
+  });
+
+  const etHour = parseInt(now.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    hour:     '2-digit',
+    hour12:   false,
+  }));
+  const etMin = parseInt(now.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    minute: '2-digit',
+  }));
+  const totalMin = etHour * 60 + etMin;
+
+  let session, dotColor;
+  if (totalMin >= 570 && totalMin < 960) {       // 9:30 – 16:00
+    session  = 'market open';
+    dotColor = 'var(--green)';
+  } else if (totalMin >= 240 && totalMin < 570) { // 4:00 – 9:30
+    session  = 'pre-market';
+    dotColor = 'var(--amber)';
+  } else if (totalMin >= 960 && totalMin < 1200) { // 16:00 – 20:00
+    session  = 'after-hours';
+    dotColor = 'var(--amber)';
+  } else {
+    session  = 'market closed';
+    dotColor = 'var(--muted)';
+  }
+
+  document.getElementById('clock').textContent = `${timeStr} · ${session}`;
+  document.querySelector('.dot').style.background = dotColor;
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+
 const CONFIG = {
   watchlist: ['AAPL', 'NVDA', 'TSLA', 'MSFT', 'AMD', 'CRWD', 'PLTR', 'ARM'],
 
