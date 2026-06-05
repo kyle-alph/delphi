@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delphi — Pre-Market Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #0a0a0f;
+      --bg2:     #111118;
+      --bg3:     #18181f;
+      --border:  rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
+      --text:    #e8e8f0;
+      --muted:   #6b6b80;
+      --accent:  #7b6ef6;
+      --accent2: #9d91f8;
+      --green:   #3dd68c;
+      --red:     #f05252;
+      --amber:   #f59e0b;
+      --font-mono: 'IBM Plex Mono', monospace;
+      --font-sans: 'IBM Plex Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+<script>
+const POLYGON_API_KEY = '2GXApNh5crjJPq7WGxM2XpMiRAp0uNzj';
+
+const CONFIG = {
+  watchlist: ['AAPL', 'NVDA', 'TSLA', 'MSFT', 'AMD', 'CRWD', 'PLTR', 'ARM'],
+
+  baskets: {
+    saas: ['HOOD', 'MDB', 'ORCL', 'CSCO', 'CRWD', 'NOW', 'SNOW', 'MSFT', 'CRM', 'DDOG', 'PLTR', 'ZS'],
+    semi: ['MRVL', 'NVDA', 'DELL', 'INTC', 'SMCI', 'QCOM', 'AMD', 'ARM', 'MU', 'SNDK', 'AVGO', 'TSM'],
+  },
+
+  theses: [
+    {
+      id: 'saas-semi',
+      name: 'SAAS ↔ Semi inverse correlation',
+      type: 'lagger',
+      baskets: ['saas', 'semi'],
+    },
+    {
+      id: 'spacex-wireless',
+      name: 'SpaceX IPO → wireless rotation',
+      type: 'static',
+      tickers: ['VZ', 'T', 'TMUS'],
+      signal: 'SIGNAL',
+      notes: 'Monitor wireless names for unusual outflows as capital rotates into SpaceX-adjacent positions.',
+    },
+    {
+      id: 'earnings-dislocation',
+      name: 'Earnings dislocation tracker',
+      type: 'earnings',
+    },
+  ],
+
+  companyNames: {
+    AAPL: 'Apple Inc.',
+    NVDA: 'NVIDIA Corp.',
+    TSLA: 'Tesla Inc.',
+    MSFT: 'Microsoft Corp.',
+    AMD:  'Advanced Micro Devices',
+    CRWD: 'CrowdStrike Holdings',
+    PLTR: 'Palantir Technologies',
+    ARM:  'Arm Holdings',
+  },
+
+  laggerThreshold: 0.5,
+  lagWindows: [20, 60],
+};
+</script>
+
+</body>
+</html>
