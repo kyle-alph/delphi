@@ -192,9 +192,9 @@
   <div class="logo">DELPHI <span>/ pre-market</span></div>
   <div class="topbar-right">
     <div class="nav-tabs">
-      <button class="nav-tab active">dashboard</button>
-      <button class="nav-tab">thesis</button>
-      <button class="nav-tab">earnings</button>
+      <button class="nav-tab active" data-section="dashboard">dashboard</button>
+      <button class="nav-tab" data-section="thesis">thesis</button>
+      <button class="nav-tab" data-section="earnings">earnings</button>
     </div>
     <div class="market-status">
       <div class="dot"></div>
@@ -269,6 +269,16 @@ function updateClock() {
 
 updateClock();
 setInterval(updateClock, 1000);
+
+// ── NAV TABS ─────────────────────────────────────────────
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const target = document.getElementById('section-' + tab.dataset.section);
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
 
 const CONFIG = {
   watchlist: ['AAPL', 'NVDA', 'TSLA', 'MSFT', 'AMD', 'CRWD', 'PLTR', 'ARM'],
